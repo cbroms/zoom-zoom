@@ -10,7 +10,10 @@ public:
 	ofxFaceTracker2 tracker; // the tracker
 	ofImage image;
 	ofPoint center;
-
+	ofPoint left;
+	ofPoint right;
+	ofPoint topMouth;
+	ofPoint bottomMouth;
 		
 	void setup(int grabberId) {
 
@@ -42,7 +45,12 @@ public:
 
 					face.loadPoseMatrix();
 					ofxFaceTracker2Landmarks landmarks = face.getLandmarks();
-					center = landmarks.getImagePoint(22);
+					center = landmarks.getImagePoint(29);
+					left = landmarks.getImagePoint(0);
+					right = landmarks.getImagePoint(16);
+
+					topMouth = landmarks.getImagePoint(62);
+					bottomMouth = landmarks.getImagePoint(66);
 				}
 				unlock();
 			
