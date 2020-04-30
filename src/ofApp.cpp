@@ -32,6 +32,7 @@ void ofApp::setup(){
 
 	if (DEBUG_SINGLE_CAM) {
 		circles.push_back(make_pair(ofPoint(200, 200), 40));
+		allIn.push_back(1);
 	}
 
 	ofSetFrameRate(20);
@@ -350,7 +351,9 @@ void ofApp::drawMode6() {
 		ofSetColor(255);
 	}
 
-	for (int i = 0; i < processors.size(); i++) {
+	for (int k = 0; k < allIn.size(); k++) {
+
+		int i = allIn[k];
 
 		// distance from ear to ear
 		float dist = sqrt(pow(edges[i].second.x - edges[i].first.x, 2) + pow(edges[i].second.y - edges[i].first.y, 2));
@@ -386,31 +389,34 @@ void ofApp::drawMode6() {
 		bool touching;
 		dist = 0;
 
-		// check that the new circle is not intersecting any other
-		for (int j = 0; j < circles.size(); j++) {
+		if (!won) {
+			// check that the new circle is not intersecting any other
+			for (int j = 0; j < circles.size(); j++) {
 
-			if (i != j) {
-				// distance btwn the points
-				dist = sqrt(pow(circles[j].first.x - newCirc.first.x, 2) + pow(circles[j].first.y - newCirc.first.y, 2)) * 2;
+				if (i != j) {
+					// distance btwn the points
+					dist = sqrt(pow(circles[j].first.x - newCirc.first.x, 2) + pow(circles[j].first.y - newCirc.first.y, 2)) * 2;
 
-				// the two circles are intersecting 
-				if (dist < circles[j].second + newCirc.second) {
-					// if they weren't in before
-					if (!isIn) {
-						// switch the selected circle
-						if (selected == i) selected = j;
-						else selected = i;
+					// the two circles are intersecting 
+					if (dist < circles[j].second + newCirc.second) {
+						// if they weren't in before
+						if (!isIn) {
+							// switch the selected circle
+							if (selected == i) selected = j;
+							else selected = i;
+						}
+						ofDrawLine(circles[j].first, newCirc.first);
+						touching = true;
 					}
-					ofDrawLine(circles[j].first, newCirc.first);
-					touching = true;
 				}
 			}
 		}
+		
 		isIn = touching;
 		circles[i] = newCirc;
 
 		// highlight behind selected one 
-		if (i == selected) {
+		if (!won && i == selected) {
 			//ofSetColor(255, 0, 0);
 			ofPath path;
 			path.setStrokeColor(ofColor(255, 0, 0));
@@ -420,8 +426,26 @@ void ofApp::drawMode6() {
 			/*ofDrawEllipse(newPos, newDist + 10, newDist + 10);
 			ofSetColor(255);*/
 
-			if (currentAlpha[i] >= 1) {
+			if (currentAlpha[i] >= 41) {
 				currentAlpha[i] -= 1;
+			}
+			else {
+
+				// remove the current video from being rendered
+				for (int p = 0; p < allIn.size(); p++) {
+					if (allIn[p] == i) {
+						allIn.erase(allIn.begin() + p);
+					}
+				}
+
+				if (allIn.size() > 1) {
+					selected = allIn[0];
+				}
+				else {
+					won = true;
+					currentAlpha[allIn[0]] = 255;
+					cout << "winner: " << allIn[0];
+				}
 			}
 		}
 		// draw the image
@@ -455,34 +479,28 @@ void ofApp::drawMode6() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	
+	ofBackground(255);
+
 	switch (drawMode) {
 	case 0:
-		ofBackground(0);
 		drawMode0();
 		break;
 	case 1:
-		ofBackground(255);
 		drawMode1();
 		break;
 	case 2:
-		ofBackground(255);
 		drawMode2();
 		break;
 	case 3:
-		ofBackground(255);
 		drawMode3();
 		break;
 	case 4:
-		ofBackground(0);
 		drawMode4();
 		break;
 	case 5:
-		ofBackground(0);
 		drawMode5();
 		break;
 	case 6:
-		ofBackground(255);
 		drawMode6();
 		break;
 	default:
@@ -516,8 +534,12 @@ void ofApp::keyPressed(int key) {
 		drawMode = 5;
 		break;
 	case '6':
+		allIn.clear();
+		won = false;
+		selected = 0;
 		for (int i = 0; i < currentAlpha.size(); i++) {
 			currentAlpha[i] = 255;
+			allIn.push_back(i);
 		}
 		drawMode = 6;
 		break;

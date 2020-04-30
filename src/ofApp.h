@@ -14,8 +14,8 @@ class ofApp : public ofBaseApp{
 		void keyPressed(int key);
 
 		// number of vitual cameras (min 1, max 4)
-		int NUM_WINDOWS = 1;
-		bool DEBUG_SINGLE_CAM = true;
+		int NUM_WINDOWS = 3;
+		bool DEBUG_SINGLE_CAM = false;
 
 		// the current draw mode
 		int drawMode = 0;
@@ -63,4 +63,6 @@ class ofApp : public ofBaseApp{
 		vector<pair<ofPoint, float>> circles;
 		int selected = 0;
 		bool isIn = false;
+		vector<int> allIn;
+		bool won = false;
 };
